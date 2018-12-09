@@ -1,5 +1,8 @@
 # Disaster Response Pipeline Project
 
+### description
+this project is a message classifier for disaster responses. it reads message as input and gives back the categeroy/s that this message belongs to
+
 ### Instructions:
 
 #### process data and save it to sqlite DB
