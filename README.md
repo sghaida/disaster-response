@@ -1,6 +1,20 @@
 # Disaster Response Pipeline Project
 
 ### Instructions:
+
+#### process data and save it to sqlite DB
+```bash
+cd data 
+python process_data.py disaster_messages.csv disaster_categories.csv DisasterResponse.db
+```
+
+#### Train and save the model
+```bash
+cd models
+python train_classifier.py ../data/DisasterResponse.db classifier.pkl
+```
+
+#### flask
 1. Run the following commands in the project's root directory to set up your database and model.
 
     - To run ETL pipeline that cleans data and stores in database
