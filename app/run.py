@@ -6,8 +6,8 @@ from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 
 from flask import Flask
-from flask import render_template, request, jsonify
-from plotly.graph_objs import Bar
+from flask import render_template, request
+from plotly.graph_objs import Bar, Heatmap
 from sklearn.externals import joblib
 from sqlalchemy import create_engine
 
@@ -27,11 +27,11 @@ def tokenize(text):
 
 
 # load data
-engine = create_engine('sqlite:///../data/YourDatabaseName.db')
-df = pd.read_sql_table('YourTableName', engine)
+engine = create_engine('sqlite:///../data/DisasterResponse.db')
+df = pd.read_sql_table('disaster_response', engine)
 
 # load model
-model = joblib.load("../models/your_model_name.pkl")
+model = joblib.load("../models/classifier.pkl")
 
 
 # index webpage displays cool visuals and receives user input text for model
@@ -39,13 +39,36 @@ model = joblib.load("../models/your_model_name.pkl")
 @app.route('/index')
 def index():
     # extract data needed for visuals
-    # TODO: Below is an example - modify to extract data for your own visuals
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
 
+    y = df.drop(['id', 'message', 'original', 'genre'], axis=1).astype(float)
+
+    category_names = labels = y.columns.values
+    correlation = y.corr()
+
+    category_counts = [sum(y[x]) for x in category_names]
+
     # create visuals
-    # TODO: Below is an example - modify to create your own visuals
     graphs = [
+        {
+            'data':   [
+                Bar(
+                    x=category_names,
+                    y=category_counts
+                )
+            ],
+
+            'layout': {
+                'title': 'Distribution of categories',
+                'yaxis': {
+                    'title': "Counts"
+                },
+                'xaxis': {
+                    'title': "Genres"
+                }
+            }
+        },
         {
             'data':   [
                 Bar(
@@ -55,13 +78,27 @@ def index():
             ],
 
             'layout': {
-                'title': 'Distribution of Message Genres',
+                'title': 'Distribution of Genres',
                 'yaxis': {
-                    'title': "Count"
+                    'title': "Counts"
                 },
                 'xaxis': {
-                    'title': "Genre"
+                    'title': "Genres"
                 }
+            }
+        },
+        {
+            'data':   [
+                Heatmap(
+                    z=correlation.values,
+                    x=labels,
+                    y=labels
+                )
+            ],
+
+            'layout': {
+                'title':  'Categories Correlation',
+                'height': 1000
             }
         }
     ]
